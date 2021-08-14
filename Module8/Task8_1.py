@@ -34,7 +34,7 @@ def congratulate(users):
         5: "Saturday",
         6: "Sunday",
     }
-    for n in range(7):
+    for n in range(7):                      # to sort final
         if n in final:
             print(f"{WD[n]}: {final[n]}")
 
