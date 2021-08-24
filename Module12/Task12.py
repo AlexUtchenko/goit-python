@@ -189,7 +189,7 @@ if __name__ == "__main__":
                 phone = phone.replace("[", "")
                 if text in key:
                     result += f"{key} : {phone}"
-                elif text in str(value.phones):
+                elif text in phone:
                     result += f"{key} : {phone}"
             if not result == "":
                 print(result)
