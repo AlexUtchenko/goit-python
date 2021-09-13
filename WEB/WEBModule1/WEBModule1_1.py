@@ -6,9 +6,11 @@ import json
 
 class SerializationInterface(ABC):
 
+    @abstractmethod
     def dump(self, data, name):
         pass
 
+    @abstractmethod
     def load(self, name):
         pass
 
