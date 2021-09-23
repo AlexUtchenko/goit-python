@@ -19,12 +19,15 @@ class Command(ABC):
         pass
 
 class PartChoosingInterface(Command):
+    global start
 
     def __init__(self):
         self.commands = ['contact', 'noter', 'sort file', 'help', 'exit']
+        print(
+            "Welcome to noter advanced iterface!\nChoose a part or command (noter for test) you need: 'contact', 'noter', 'sort file', 'help', 'exit'")
+
 
     def validate(self):
-        print("Welcome to noter advanced iterface!\nChoose a part or command (noter for test) you need: 'contact', 'noter', 'sort file', 'help', 'exit'")
         command = str(input("Please enter a command.\n>>> ")).lower()
         if not command in self.commands:
             answer = "n"
@@ -63,10 +66,13 @@ class PartChoosingInterface(Command):
                   return - выход в предыдущее меню
                 ''')
             noter_int = NoterInterface()
-            noter_int.execute(noter_int.validate())
+            start = noter_int.execute(noter_int.validate())
+            return start
         if command == 'exit':
-            return "final"
-
+            start = False
+            return start
+        else:
+            print("Test version. Only Noter is available")
 
 class NoterInterface(PartChoosingInterface):
 
@@ -106,9 +112,18 @@ class NoterInterface(PartChoosingInterface):
             print("Choosing the note to delete...")
             name = str(input("Enter name:> "))
             print(noter.delete(name))
-        elif item == 'exit':
+        elif item == 'return':
             exInterface = PartChoosingInterface()
-            exInterface.execute(exInterface.validate())
+            start = exInterface.execute(exInterface.validate())
+            return start
+        next = str(input("Do you want to continue in Noter part?(Y/N)\n>>>")).lower()
+        if next == 'n':
+            exInterface = PartChoosingInterface()
+            start = exInterface.execute(exInterface.validate())
+            return start
+        elif next == 'y':
+            noter_int = NoterInterface()
+            noter_int.execute(noter_int.validate())
 
 
 class Noter:
@@ -249,21 +264,9 @@ class Noter:
         return f"There is no this text in tags and names"
 
 
-
 if __name__ == '__main__':
     start = None
     while start is None:
         exInterface = PartChoosingInterface()
         start = exInterface.execute(exInterface.validate())
-        if start is None:
-            end = str(input("Закончить или продолжить? (Y/N)\n>>> ")).lower()
-            if end == 'y':
-                break
-            elif end == 'n':
-                start = None
-                continue
-            else:
-                print("Uncorrect answer.")
-                start = "final"
-                continue
     print('The program is finished')
