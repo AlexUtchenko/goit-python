@@ -1,7 +1,6 @@
 import datetime
 from pathlib import Path
 import re
-import shutil
 import threading
 import concurrent.futures
 
@@ -53,7 +52,6 @@ def scan(folder: Path): #added extra thread for scan of inner folders using Thre
                     FOLDERS.append(item)
                     t1 = threading.Thread(target=scan, args=(item,))
                     t1.start()
-                    # scan(item)
                 continue
             lock_obj.acquire()
             extension = get_extensions(item.name)
@@ -113,10 +111,25 @@ def file_transition(file: Path, root_folder: Path, dist: str):
 
 
 def delete_folder(folder: Path):
-    try:
-        folder.rmdir()
-    except OSError:
-        pass
+    f = False
+    while not f:
+        try:
+            folder.rmdir()
+            f = True
+        except OSError:
+            f = False
+
+
+def delete_folder_sem(folder: Path, s):
+    s.acquire()
+    f = False
+    while not f:
+        try:
+            folder.rmdir()
+            f = True
+        except OSError:
+            f = False
+    s.release()
 
 
 def main_pool(folder, mw=7):
@@ -165,13 +178,13 @@ def main_sem(folder, sn=10):
                 destination_name = "Archives"
             t = threading.Thread(target=file_transition_sem, args=(file, folder, destination_name,s))
             t.start()
-        for f in FOLDERS:
-            s.acquire()
-            t = threading.Thread(target=delete_folder, args=(f,))
-            t.start()
-            s.release()
+    for f in FOLDERS:
+        t2 = threading.Thread(target=delete_folder_sem, args=(f,s))
+        t2.start()
 
-def file_transition_sem(file: Path, root_folder: Path, dist: str,s):
+
+
+def file_transition_sem(file: Path, root_folder: Path, dist: str, s):
     s.acquire()
     target_folder = root_folder / dist
     target_folder.mkdir(exist_ok=True)
