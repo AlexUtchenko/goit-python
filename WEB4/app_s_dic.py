@@ -151,7 +151,7 @@ def main_pool(folder, mw=7):
             executor.submit(delete_folder, f)
 
 
-def main_sem(folder, sn=10):
+def main_sem(folder, sn=5):
     s = threading.Semaphore(sn)
     folder = Path(folder)
     scan(folder)
@@ -174,9 +174,7 @@ def file_transition_sem(file: Path, root_folder: Path, dist: str, s):
     file.replace(target_folder / new_name)
     s.release()
 
-
-if __name__ == '__main__':
-    print("*** Welcome to multithreading sorter app! ***\n")
+def interface():
     while True:
         switcher = input("Choose multithreading mode:\n- pool(p)\n- semaphore(s)\n>>> ").lower()
         if switcher == 'p':
@@ -187,19 +185,15 @@ if __name__ == '__main__':
                     while not mw:
                         try:
                             mw = int(input("Enter number of threads.\n>>> "))
+                            return switcher,mw
                         except ValueError:
                             print("Value error. Use integer and try again!")
                 elif answer == "n":
                     mw = 7
+                    return switcher, mw
                 else:
                     print("Your answer should be 'y' or 'n'!")
-            input_arg = input('===============================\nEnter the directory for sorting\n>>>  ')
-            time1 = datetime.datetime.now()
-            sort_folder = Path(input_arg)
-            print(f"-------------------------------\nSorting has been started with {mw} threads...")
-            main_pool(sort_folder, mw)
-            print("Sorting is completed!")
-            print(f"Sorting process took {datetime.datetime.now() - time1} seconds.\nGood buy!")
+                    continue
             break
         elif switcher == 's':
             sn = None
@@ -210,19 +204,35 @@ if __name__ == '__main__':
                     while not sn:
                         try:
                             sn = int(input("Enter number of threads.\n>>> "))
+                            return switcher,sn
                         except ValueError:
                             print("Value error. Use integer and try again!")
                 elif answer == "n":
                     sn = 7
+                    return switcher,sn
                 else:
                     print("Your answer should be 'y' or 'n'!")
-            input_arg = input('===============================\nEnter the directory for sorting\n>>>  ')
-            time1 = datetime.datetime.now()
-            sort_folder = Path(input_arg)
-            print(f"-------------------------------\nSorting has been started with {sn} threads...")
-            main_sem(sort_folder, sn)
-            print("Sorting is completed!")
-            print(f"Sorting process took {datetime.datetime.now() - time1} seconds.\nGood buy!")
+                    continue
             break
         else:
             print('Value error. You should enter "p" for pool-mode or "s" for semaphore-mode. Please try again..')
+
+if __name__ == '__main__':
+    print("*** Welcome to multithreading sorter app! ***\n")
+    mode, threads = interface()
+    input_arg = input('===============================\nEnter the directory for sorting\n>>>  ')
+    time1 = datetime.datetime.now()
+    sort_folder = Path(input_arg)
+    print(f"-------------------------------\nSorting has been started with {threads} threads...")
+    if mode == "p":
+        main_pool(sort_folder, threads)
+        print("Sorting is completed!")
+        print(f"Sorting process took {datetime.datetime.now() - time1} seconds.\nGood buy!")
+    elif mode == "s":
+        main_sem(sort_folder, threads)
+        print("Sorting is completed!")
+        print(f"Sorting process took {datetime.datetime.now() - time1} seconds.\nGood buy!")
+    else:
+        print("Interface error. Please contact the developers")
+
+
