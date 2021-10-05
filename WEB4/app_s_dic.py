@@ -5,13 +5,8 @@ import threading
 import concurrent.futures
 
 
-IMAGES = []
-AUDIO = []
-VIDEO = []
-DOCUMENTS = []
-OTHER = []
+
 FOLDERS = []
-ARCHIVES = []
 UNKNOWN = set()
 EXTENSIONS = set()
 
@@ -25,27 +20,31 @@ DESTINATIONS = {
 }
 
 REGISTERED_EXTENSIONS = {
-    'JPEG': IMAGES,
-    'PNG': IMAGES,
-    'JPG': IMAGES,
-    'SVG': IMAGES,
-    'AVI': VIDEO,
-    'MP4': VIDEO,
-    'MOV': VIDEO,
-    'MKV': VIDEO,
-    'DOC': DOCUMENTS,
-    'DOCX': DOCUMENTS,
-    'TXT': DOCUMENTS,
-    'PDF': DOCUMENTS,
-    'XLSX': DOCUMENTS,
-    'PPTX': DOCUMENTS,
-    'MP3': AUDIO,
-    'OGG': AUDIO,
-    'WAV': AUDIO,
-    'AMR': AUDIO,
-    'ZIP': ARCHIVES,
-    'GZ': ARCHIVES,
-    'TAR': ARCHIVES,
+    'JPEG': DESTINATIONS['Images'],
+    'PNG': DESTINATIONS['Images'],
+    'JPG': DESTINATIONS['Images'],
+    'SVG': DESTINATIONS['Images'],
+    'AVI': DESTINATIONS['Video'],
+    'MP4': DESTINATIONS['Video'],
+    'MOV': DESTINATIONS['Video'],
+    'MKV': DESTINATIONS['Video'],
+    'DOC': DESTINATIONS['Documents'],
+    'DOCX': DESTINATIONS['Documents'],
+    'TXT': DESTINATIONS['Documents'],
+    'PDF': DESTINATIONS['Documents'],
+    'XLSX': DESTINATIONS['Documents'],
+    'PPTX': DESTINATIONS['Documents'],
+    'DJVU': DESTINATIONS['Documents'],
+    'DJV': DESTINATIONS['Documents'],
+    'MP3': DESTINATIONS['Audio'],
+    'OGG': DESTINATIONS['Audio'],
+    'WAV': DESTINATIONS['Audio'],
+    'AMR': DESTINATIONS['Audio'],
+    'FLAC': DESTINATIONS['Audio'],
+    'AAC': DESTINATIONS['Audio'],
+    'ZIP': DESTINATIONS['Archives'],
+    'GZ': DESTINATIONS['Archives'],
+    'TAR': DESTINATIONS['Archives']
 }
 
 
@@ -66,15 +65,15 @@ def scan(folder: Path): #added extra thread for scan of inner folders using Thre
             extension = get_extensions(item.name)
             new_name = folder / item.name
             if not extension:
-                OTHER.append(new_name)
+                DESTINATIONS['Other'].append(new_name)
             else:
                 try:
-                    current_container = REGISTERED_EXTENSIONS[extension]
+                    REGISTERED_EXTENSIONS[extension].append(new_name)
                     EXTENSIONS.add(extension)
-                    current_container.append(new_name)
+
                 except KeyError:
                     UNKNOWN.add(extension)
-                    OTHER.append(new_name)
+                    DESTINATIONS['Other'].append(new_name)
             lock_obj.release()
 
 
@@ -144,23 +143,10 @@ def delete_folder_sem(folder: Path, s):
 def main_pool(folder, mw=7):
     folder = Path(folder)
     scan(folder)
-    total_list = [IMAGES, AUDIO, VIDEO, DOCUMENTS, OTHER, ARCHIVES]
     with concurrent.futures.ThreadPoolExecutor(max_workers=mw) as executor: #MT using pool
-        for type_of_file in total_list:
-            for file in type_of_file:
-                if type_of_file is IMAGES:
-                    destination_name = "Images"
-                if type_of_file is AUDIO:
-                    destination_name = "Audio"
-                if type_of_file is VIDEO:
-                    destination_name = "Video"
-                if type_of_file is DOCUMENTS:
-                    destination_name = "Documents"
-                if type_of_file is OTHER:
-                    destination_name = "Other"
-                if type_of_file is ARCHIVES:
-                    destination_name = "Archives"
-                executor.submit(file_transition, file, folder, destination_name)
+        for key, value in DESTINATIONS.items():
+            for file in value:
+                executor.submit(file_transition, file, folder, key)
         for f in FOLDERS:
             executor.submit(delete_folder, f)
 
@@ -169,26 +155,12 @@ def main_sem(folder, sn=10):
     s = threading.Semaphore(sn)
     folder = Path(folder)
     scan(folder)
-    total_list = [IMAGES, AUDIO, VIDEO, DOCUMENTS, OTHER, ARCHIVES]
-    destination_name = ""
-    for type_of_file in total_list:
-        for file in type_of_file:
-            if type_of_file is IMAGES:
-                destination_name = "Images"
-            if type_of_file is AUDIO:
-                destination_name = "Audio"
-            if type_of_file is VIDEO:
-                destination_name = "Video"
-            if type_of_file is DOCUMENTS:
-                destination_name = "Documents"
-            if type_of_file is OTHER:
-                destination_name = "Other"
-            if type_of_file is ARCHIVES:
-                destination_name = "Archives"
-            t = threading.Thread(target=file_transition_sem, args=(file, folder, destination_name,s))
+    for key, value in DESTINATIONS.items():
+        for file in value:
+            t = threading.Thread(target=file_transition_sem, args=(file, folder, key, s))
             t.start()
     for f in FOLDERS:
-        t2 = threading.Thread(target=delete_folder_sem, args=(f,s))
+        t2 = threading.Thread(target=delete_folder_sem, args=(f, s))
         t2.start()
 
 
@@ -206,7 +178,7 @@ def file_transition_sem(file: Path, root_folder: Path, dist: str, s):
 if __name__ == '__main__':
     print("*** Welcome to multithreading sorter app! ***\n")
     while True:
-        switcher = input("Choose multithreading mode:\n- pool(p)\n-semaphore(s)\n>>> ").lower()
+        switcher = input("Choose multithreading mode:\n- pool(p)\n- semaphore(s)\n>>> ").lower()
         if switcher == 'p':
             mw = None
             while mw is None:
@@ -253,4 +225,4 @@ if __name__ == '__main__':
             print(f"Sorting process took {datetime.datetime.now() - time1} seconds.\nGood buy!")
             break
         else:
-            print('Value error. You should enter "p" for pool-mode or "s" for semaphore mode. Please try again..')
+            print('Value error. You should enter "p" for pool-mode or "s" for semaphore-mode. Please try again..')
