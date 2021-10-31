@@ -20,7 +20,7 @@ def listening(soc):
 
 def start_client(port, host):
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    name = input('\nWelcome to CHAT (client)!\n Please, enter your name and start communication:\n>>> ')
+    name = input('Welcome to CHAT (host)!\n*print "exit" for quit the chat!\nPlease, enter your name and start communication:\n>>> ')
     while True:
         try:
             soc.connect((port, host))

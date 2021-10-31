@@ -18,7 +18,7 @@ def listen_user(user):
 
 
 def start_server(host, port):
-    name = input('Welcome to CHAT (host)!\n Please, enter your name and start communication:\n>>> ')
+    name = input('Welcome to CHAT (host)!\n*print "exit" for quit the chat!\nPlease, enter your name and start communication:\n>>> ')
     with socket.socket() as soc:
         soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         soc.bind((host, port))
