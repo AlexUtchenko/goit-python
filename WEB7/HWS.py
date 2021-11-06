@@ -6,19 +6,21 @@ port = 1235
 
 
 def listen_user(user):
-    try:
-        while True:
+    while True:
+        try:
             income = user.recv(4096).decode()
-            in_name, in_message = income.split('|||')
-            print(f'{in_name:>10}: {in_message}')
-            if in_message == 'exit':
-                break
-    except ConnectionResetError or Exception:
-        user.close()
+        except ConnectionResetError or Exception:
+            user.close()
+            break
+        in_name, in_message = income.split('|||')
+        print(f'{in_name:>10}: {in_message}')
+        if in_message == 'exit':
+            break
+
 
 
 def start_server(host, port):
-    name = input('Welcome to CHAT (host)!\n*print "exit" for quit the chat!\nPlease, enter your name and start communication:\n>>> ')
+    name = input(' '*20 + 'Welcome to CHAT (host)!\n * print "exit" for quit the chat!\nPlease, enter your name and start communication:\n>>> ')
     with socket.socket() as soc:
         soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         soc.bind((host, port))
@@ -38,20 +40,19 @@ def start_server(host, port):
                     break
                 msg = input("")
                 if msg == 'exit':
+                    data = str((name + '|||' + msg)).encode()
                     try:
-                        data = str((name + '|||' + msg)).encode()
                         user_socket.send(data)
                         break
                     except OSError:
                         print("Connection is lost or another user has left")
                 else:
+                    data = str((name + '|||' + msg)).encode()
                     try:
-                        data = str((name + '|||' + msg)).encode()
                         user_socket.send(data)
                     except OSError:
                         print("Connection is lost or another user has left")
                         break
-            # user_socket.close()
     print('Good bye!')
 
 
