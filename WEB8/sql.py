@@ -666,7 +666,7 @@ if __name__ == '__main__':
     # creating_db()
     # creating_tables()
     # inserting_tables()
-    # q1_5_best_avg() # 1
+    q1_5_best_avg() # 1
     # q2_1_top_in_subj() # 2
     # q3_avg_gr_subj() # 3
     # q4_avg_all() # 4
@@ -677,6 +677,6 @@ if __name__ == '__main__':
     # q9_subjs_student_attend() # 9
     # q10_subjs_student_and_lecturer() # 10
     # q11_avg_grade_from_lect_to_stud() # 11
-    q12_avg_grade_from_lect()
+    # q12_avg_grade_from_lect()
 
 
