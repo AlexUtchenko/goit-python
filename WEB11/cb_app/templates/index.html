@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>Hi, {{ current_user.username }}!</h1>
+    <h2>Please, choose a command:</h2>
+    <li><a href="{{ url_for('add') }}">Add</a>
+    <li><a href="{{ url_for('show_all') }}">Show_all</a>
+    <li><a href="{{ url_for('delete') }}">Delete</a>
+    <li><a href="{{ url_for('show') }}">Show</a>
+    <li><a href="{{ url_for('search') }}">Search</a>
+</body>
+</html>
