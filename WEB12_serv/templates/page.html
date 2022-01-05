@@ -1,0 +1,9 @@
+{% set title = "Agregator" %}
+
+<h1>Results of current air pollution and geomagnetic acivity</h1>
+<h2>Warnings: </h2>
+{% if result %}
+    <h3>{{ result}}</h3>
+{% else %}
+    <p>No data</p>
+{% endif %}

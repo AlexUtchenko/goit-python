@@ -116,7 +116,7 @@ async def kp_index_noaa(session):
 
 
 
-# @aiohttp_jinja2.template('page.html')
+@aiohttp_jinja2.template('page.html')
 async def page(request):
     async with aiohttp.ClientSession() as session:
         results = await asyncio.gather(air_quality(session), kp_index_noaa(session))
@@ -130,16 +130,13 @@ async def page(request):
         msg += f"!!! WARNING !!! {datetime.datetime.now().strftime('%Y-%m-%d %H.%M.%S')}\nGeomagnetic activity! K-index: {results[1]['KP_NOAA_description']}"
     else:
         msg += 'No warning'
-    context = {'message': msg}
-    return web.Response(text=msg)
-    # return aiohttp_jinja2.render_template('page.html',
-    #                                           request,
-    #                                           context)
+    return {'result': msg}
+
 
 
 if __name__ == "__main__":
     app = web.Application()
-    # aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('./templates'))
+    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('./templates'))
     app.add_routes([web.get('/', page)])
     web.run_app(app)
 
